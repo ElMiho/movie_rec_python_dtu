@@ -124,6 +124,33 @@ if __name__ == '__main__':
     (2, 0),
     (3, 4)
   ]
+
+  print("Prediction using average")
+  for user_movie in user_removed_movie:
+    user = user_movie[0]
+    movie = user_movie[1]
+    (training_data, validation_data) = split_data(movie, movie_data)
+    actual_rating = validation_data[user][0]
+    predicted_rating = prediction_average(user, k, training_data, validation_data)
+    print("  User: " + str(user) + ", movie: " + str(movie))
+    print("    Actual rating: " + str(actual_rating))
+    print("    Predicted rating: " + str(predicted_rating))
+    print("    Predicted - actual: " + str(predicted_rating - actual_rating))
+  print("\n")
+
+  print("Prediction using weighted average")
+  for user_movie in user_removed_movie:
+    user = user_movie[0]
+    movie = user_movie[1]
+    (training_data, validation_data) = split_data(movie, movie_data)
+    actual_rating = validation_data[user][0]
+    predicted_rating = prediction_weighted_average(user, k, training_data, validation_data)[0]
+    print("  User: " + str(user) + ", movie: " + str(movie))
+    print("    Actual rating: " + str(actual_rating))
+    print("    Predicted rating: " + str(predicted_rating))
+    print("    Predicted - actual: " + str(predicted_rating - actual_rating))
+  print("\n")
+
   print("Prediction using weighted average corrected")
   for user_movie in user_removed_movie:
     user = user_movie[0]
