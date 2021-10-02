@@ -98,24 +98,25 @@ def prediction_weighted_average_corrected(user, k, known_data, new_data):
     ]
   )
   return res
-  
-modified_data = np.array(
-  [
-    [0],
-    [4],
-    [4],
-    [4]
-  ]
-)
 
+def split_data(user, data):
+  (rows, columns) = np.shape(data)
+  validation_data = data[:,user].reshape(rows, 1)
+  training_data = np.delete(data, user, 1)
+  return (training_data, validation_data)
+   
 if __name__ == '__main__':
   print("Raw data (rows: users, columns: movies): \n" + str(movie_data))
-  print("Similarity matrix (rows and columns: users): \n" + str(generate_sim_matrix(movie_data)))
+  print("Similarity matrix - all data (rows and columns: users): \n" + str(generate_sim_matrix(movie_data)))
   
   k = 3
-  print("User and its neighbours sorted with k=" + str(k))
+  print("Users and its neighbours sorted with k=" + str(k) + str(" (also all data)"))
   (rows, columns) = np.shape(movie_data)
   for user in range(rows):
     print("User " + str(user) + ": " + str(KNN(user, movie_data, k)))
 
-  print(prediction_weighted_average_corrected(0, k, movie_data, modified_data))
+  print("\n")
+  (training_data, validation_data) = split_data(0, movie_data)
+  print("training_data: \n" + str(training_data))
+  print("validation_data: \n" + str(validation_data))
+  print(prediction_weighted_average_corrected(0, 3, training_data, validation_data))
