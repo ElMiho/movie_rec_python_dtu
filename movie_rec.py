@@ -125,15 +125,16 @@ def get_movie_data(file):
   return clean_up_data(r)
 
 if __name__ == '__main__':
-  print("Raw data (rows: users, columns: movies): \n" + str(movie_data))
-  print("Similarity matrix - all data (rows and columns: users): \n" + str(generate_sim_matrix(movie_data)))
+  data = movie_data
+  print("Raw data (rows: users, columns: movies): \n" + str(data))
+  print("Similarity matrix - all data (rows and columns: users): \n" + str(generate_sim_matrix(data)))
   print("\n")
 
   k = 3
   print("Users and its neighbours sorted with k=" + str(k) + str(" (also all data)"))
-  (rows, columns) = np.shape(movie_data)
+  (rows, columns) = np.shape(data)
   for user in range(rows):
-    print("  User " + str(user) + ": " + str(KNN(user, movie_data, k)))
+    print("  User " + str(user) + ": " + str(KNN(user, data, k)))
   print("\n")
 
   # User and their removed movie
@@ -148,7 +149,7 @@ if __name__ == '__main__':
   for user_movie in user_removed_movie:
     user = user_movie[0]
     movie = user_movie[1]
-    (training_data, validation_data) = split_data(movie, movie_data)
+    (training_data, validation_data) = split_data(movie, data)
     actual_rating = validation_data[user][0]
     predicted_rating = prediction_average(user, k, training_data, validation_data)
     print("  User: " + str(user) + ", movie: " + str(movie))
@@ -161,7 +162,7 @@ if __name__ == '__main__':
   for user_movie in user_removed_movie:
     user = user_movie[0]
     movie = user_movie[1]
-    (training_data, validation_data) = split_data(movie, movie_data)
+    (training_data, validation_data) = split_data(movie, data)
     actual_rating = validation_data[user][0]
     predicted_rating = prediction_weighted_average(user, k, training_data, validation_data)[0]
     print("  User: " + str(user) + ", movie: " + str(movie))
@@ -174,7 +175,7 @@ if __name__ == '__main__':
   for user_movie in user_removed_movie:
     user = user_movie[0]
     movie = user_movie[1]
-    (training_data, validation_data) = split_data(movie, movie_data)
+    (training_data, validation_data) = split_data(movie, data)
     actual_rating = validation_data[user][0]
     predicted_rating = prediction_weighted_average_corrected(user, k, training_data, validation_data)[0]
     print("  User: " + str(user) + ", movie: " + str(movie))
