@@ -33,8 +33,8 @@ def generate_sim_matrix(data):
   (rows, columns) = np.shape(data)
   l = [
     pearson(n, k, data)
-    for n in range(columns - 2)
-    for k in range(columns - 2)
+    for n in range(rows)
+    for k in range(rows)
   ]
   return np.array(l).reshape(rows, rows) # Use the list l to create a matrix and then reshape it
 
