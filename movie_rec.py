@@ -99,24 +99,39 @@ def prediction_weighted_average_corrected(user, k, known_data, new_data):
   )
   return res
 
-def split_data(user, data):
+def split_data(movie, data):
   (rows, columns) = np.shape(data)
-  validation_data = data[:,user].reshape(rows, 1)
-  training_data = np.delete(data, user, 1)
+  validation_data = data[:,movie].reshape(rows, 1)
+  training_data = np.delete(data, movie, 1)
   return (training_data, validation_data)
    
 if __name__ == '__main__':
   print("Raw data (rows: users, columns: movies): \n" + str(movie_data))
   print("Similarity matrix - all data (rows and columns: users): \n" + str(generate_sim_matrix(movie_data)))
-  
+  print("\n")
+
   k = 3
   print("Users and its neighbours sorted with k=" + str(k) + str(" (also all data)"))
   (rows, columns) = np.shape(movie_data)
   for user in range(rows):
-    print("User " + str(user) + ": " + str(KNN(user, movie_data, k)))
-
+    print("  User " + str(user) + ": " + str(KNN(user, movie_data, k)))
   print("\n")
-  (training_data, validation_data) = split_data(0, movie_data)
-  print("training_data: \n" + str(training_data))
-  print("validation_data: \n" + str(validation_data))
-  print(prediction_weighted_average_corrected(0, 3, training_data, validation_data))
+
+  # User and their removed movie
+  user_removed_movie = [
+    (0, 1),
+    (1, 2),
+    (2, 0),
+    (3, 4)
+  ]
+  print("Prediction using weighted average corrected")
+  for user_movie in user_removed_movie:
+    user = user_movie[0]
+    movie = user_movie[1]
+    (training_data, validation_data) = split_data(movie, movie_data)
+    actual_rating = validation_data[user][0]
+    predicted_rating = prediction_weighted_average_corrected(user, k, training_data, validation_data)[0]
+    print("  User: " + str(user) + ", movie: " + str(movie))
+    print("    Actual rating: " + str(actual_rating))
+    print("    Predicted rating: " + str(predicted_rating))
+    print("    Predicted - actual: " + str(predicted_rating - actual_rating))
