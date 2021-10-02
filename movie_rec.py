@@ -104,7 +104,26 @@ def split_data(movie, data):
   validation_data = data[:,movie].reshape(rows, 1)
   training_data = np.delete(data, movie, 1)
   return (training_data, validation_data)
+
+def get_movie_raw_array(file):
+  csv_file = open(file)
+  csv_reader = csv.reader(csv_file)
+  list_csv = list(csv_reader)
+  array = np.array(list_csv)
+  res = np.delete(
+    np.delete(array, 0, 0),
+    0, 1
+  )
+  return res
+
+def clean_up_data(array):
+  v = np.vectorize(lambda x: 0 if x == '' else int(x))
+  return v(array)
    
+def get_movie_data(file):
+  r = get_movie_raw_array(file)
+  return clean_up_data(r)
+
 if __name__ == '__main__':
   print("Raw data (rows: users, columns: movies): \n" + str(movie_data))
   print("Similarity matrix - all data (rows and columns: users): \n" + str(generate_sim_matrix(movie_data)))
