@@ -39,11 +39,14 @@ def generate_sim_matrix(data):
   return np.array(l).reshape(rows, rows) # Use the list l to create a matrix and then reshape it
 
 def neighbours(user, data):
+  # Create the similarity matrix
   user_data_sim = generate_sim_matrix(data)[user]
+  # Get a list with the index and value
   l = [
-    (idx, user)
-    for (idx, user) in enumerate(user_data_sim)
+    (idx, value)
+    for (idx, value) in enumerate(user_data_sim)
   ]
+  # Removes the user from the list of neighbours
   res = filter(
     lambda i: i[0] != user,
     l 
@@ -53,12 +56,15 @@ def neighbours(user, data):
 def neighbours_sorted(user, data):
   res = sorted(
     neighbours(user, data),
-    key = lambda i: i[1],
-    reverse = True
+    # Data format is (index, value) so this makes sure
+    # that it sorts based on the value
+    key = lambda i: i[1], 
+    reverse = True # Clostest neighbours first
   )
   return list(res)
 
 def KNN(user, data, k):
+  # Returns the first k elements
   return neighbours_sorted(user, data)[:k]
 
 def prediction_average(user, k, known_data, new_data):
@@ -99,6 +105,9 @@ def prediction_weighted_average_corrected(user, k, known_data, new_data):
   )
   return res
 
+# It doesn't make sense to train on the all the data
+# and then make a prediction for the same data
+# so we have to split up the data into training and validation
 def split_data(movie, data):
   (rows, columns) = np.shape(data)
   validation_data = data[:,movie].reshape(rows, 1)
@@ -130,7 +139,7 @@ if __name__ == '__main__':
   print("Similarity matrix - all data (rows and columns: users): \n" + str(generate_sim_matrix(data)))
   print("\n")
 
-  k = 3
+  k = 3 # How many neighbours
   print("Users and its neighbours sorted with k=" + str(k) + str(" (also all data)"))
   (rows, columns) = np.shape(data)
   for user in range(rows):
