@@ -75,7 +75,7 @@ def prediction_average(user, movie, k, known_data):
     known_data[id_value[0]][movie]
     for id_value in k_nearest_neighbours
   ]
-  return sum(res)/len(k_nearest_neighbours)
+  return sum(res)/k
 
 def w(user1, user2, data, k):
   s_u1_u2 = pearson(user1, user2, data)
