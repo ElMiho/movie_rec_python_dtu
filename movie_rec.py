@@ -11,7 +11,9 @@ movie_data = np.array(
 )
 
 def average(user, data):
-  return np.average(data[user])
+  return np.average(
+    data[user][data[user] != 0]
+  )
 
 def pearson(user1, user2, data):
   sum1 = np.sum(
@@ -67,10 +69,10 @@ def KNN(user, data, k):
   # Returns the first k elements
   return neighbours_sorted(user, data)[:k]
 
-def prediction_average(user, k, known_data, new_data):
+def prediction_average(user, k, known_data):
   k_nearest_neighbours = KNN(user, known_data, k)
   res = [
-    new_data[user[0]][0]
+    known_data[user[0]][0]
     for user in k_nearest_neighbours
   ]
   return sum(res)/len(k_nearest_neighbours)
@@ -85,33 +87,33 @@ def w(user1, user2, data, k):
   )
   return s_u1_u2/sum_over_knn
 
-def prediction_weighted_average(user, k, known_data, new_data):
+def prediction_weighted_average(user, k, known_data):
   knn = KNN(user, known_data, k)
   res = sum(
     [
-      (w(user, id_value[0], known_data, k) * new_data[id_value[0]])
+      (w(user, id_value[0], known_data, k) * known_data[id_value[0]])
       for id_value in knn
     ]
   )
   return res
 
-def prediction_weighted_average_corrected(user, k, known_data, new_data):
+def prediction_weighted_average_corrected(user, k, known_data):
   knn = KNN(user, known_data, k)
   res = average(user, known_data) + sum(
     [
-      (w(user, id_value[0], known_data, k) * (new_data[id_value[0]] - average(id_value[0], known_data)))
+      (w(user, id_value[0], known_data, k) * (known_data[id_value[0]] - average(id_value[0], known_data)))
       for id_value in knn
     ]
   )
   return res
 
-# It doesn't make sense to train on the all the data
-# and then make a prediction for the same data
-# so we have to split up the data into training and validation
-def split_data(movie, data):
+def split_data(user, movie, data):
   (rows, columns) = np.shape(data)
-  validation_data = data[:,movie].reshape(rows, 1)
-  training_data = np.delete(data, movie, 1)
+  validation_data = np.array(
+    list(data)
+  )[:,movie].reshape(rows, 1)
+  training_data = np.array(list(data))
+  training_data[user, movie] = 0
   return (training_data, validation_data)
 
 def get_movie_raw_array(file):
@@ -158,28 +160,25 @@ if __name__ == '__main__':
   for user_movie in user_removed_movie:
     user = user_movie[0]
     movie = user_movie[1]
-    (training_data, validation_data) = split_data(movie, data)
+    (training_data, validation_data) = split_data(user, movie, data)
     actual_rating = validation_data[user][0]
     predicted_rating_average = prediction_average(
       user, 
       k, 
-      training_data, 
-      validation_data
+      training_data
     )
     predicted_rating_weighted_average = prediction_weighted_average(
       user, 
       k, 
-      training_data, 
-      validation_data
+      training_data
     )[0]
     predicted_rating_weighted_average_corrected = prediction_weighted_average_corrected(
       user, 
       k, 
-      training_data, 
-      validation_data
+      training_data
     )[0]
     print("  User: " + str(user) + ", movie: " + str(movie))
     print("    Actual rating: " + str(actual_rating))
     print("    Average rating: " + str(predicted_rating_average))
     print("    Weighted average rating: " + str(predicted_rating_weighted_average))
-    print("    Weighted average corrected rating : " + str(predicted_rating_weighted_average_corrected))
+    print("    Weighted average corrected rating: " + str(predicted_rating_weighted_average_corrected))
