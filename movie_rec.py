@@ -151,9 +151,24 @@ if __name__ == '__main__':
     movie = user_movie[1]
     (training_data, validation_data) = split_data(movie, data)
     actual_rating = validation_data[user][0]
-    predicted_rating_average = prediction_average(user, k, training_data, validation_data)
-    predicted_rating_weighted_average = prediction_weighted_average(user, k, training_data, validation_data)[0]
-    predicted_rating_weighted_average_corrected = prediction_weighted_average_corrected(user, k, training_data, validation_data)[0]
+    predicted_rating_average = prediction_average(
+      user, 
+      k, 
+      training_data, 
+      validation_data
+    )
+    predicted_rating_weighted_average = prediction_weighted_average(
+      user, 
+      k, 
+      training_data, 
+      validation_data
+    )[0]
+    predicted_rating_weighted_average_corrected = prediction_weighted_average_corrected(
+      user, 
+      k, 
+      training_data, 
+      validation_data
+    )[0]
     print("  User: " + str(user) + ", movie: " + str(movie))
     print("    Actual rating: " + str(actual_rating))
     print("    Average rating: " + str(predicted_rating_average))
