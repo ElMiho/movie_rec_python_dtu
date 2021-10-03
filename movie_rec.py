@@ -69,11 +69,11 @@ def KNN(user, data, k):
   # Returns the first k elements
   return neighbours_sorted(user, data)[:k]
 
-def prediction_average(user, k, known_data):
+def prediction_average(user, movie, k, known_data):
   k_nearest_neighbours = KNN(user, known_data, k)
   res = [
-    known_data[user[0]][0]
-    for user in k_nearest_neighbours
+    known_data[id_value[0]][movie]
+    for id_value in k_nearest_neighbours
   ]
   return sum(res)/len(k_nearest_neighbours)
 
@@ -87,21 +87,21 @@ def w(user1, user2, data, k):
   )
   return s_u1_u2/sum_over_knn
 
-def prediction_weighted_average(user, k, known_data):
+def prediction_weighted_average(user, movie, k, known_data):
   knn = KNN(user, known_data, k)
   res = sum(
     [
-      (w(user, id_value[0], known_data, k) * known_data[id_value[0]])
+      (w(user, id_value[0], known_data, k) * known_data[id_value[0], movie])
       for id_value in knn
     ]
   )
   return res
 
-def prediction_weighted_average_corrected(user, k, known_data):
+def prediction_weighted_average_corrected(user, movie, k, known_data):
   knn = KNN(user, known_data, k)
   res = average(user, known_data) + sum(
     [
-      (w(user, id_value[0], known_data, k) * (known_data[id_value[0]] - average(id_value[0], known_data)))
+      (w(user, id_value[0], known_data, k) * (known_data[id_value[0], movie] - average(id_value[0], known_data)))
       for id_value in knn
     ]
   )
@@ -164,19 +164,22 @@ if __name__ == '__main__':
     actual_rating = validation_data[user][0]
     predicted_rating_average = prediction_average(
       user, 
+      movie, 
       k, 
       training_data
     )
     predicted_rating_weighted_average = prediction_weighted_average(
       user, 
+      movie, 
       k, 
       training_data
-    )[0]
+    )
     predicted_rating_weighted_average_corrected = prediction_weighted_average_corrected(
       user, 
+      movie, 
       k, 
       training_data
-    )[0]
+    )
     print("  User: " + str(user) + ", movie: " + str(movie))
     print("    Actual rating: " + str(actual_rating))
     print("    Average rating: " + str(predicted_rating_average))
