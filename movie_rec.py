@@ -37,18 +37,18 @@ def euclidean(user1, user2, data):
   )
   return 1/(1 + np.sqrt(sum))
 
-def generate_sim_matrix(data):
+def generate_sim_matrix(data, method):
   (rows, columns) = np.shape(data)
   l = [
-    pearson(n, k, data)
+    method(n, k, data)
     for n in range(rows)
     for k in range(rows)
   ]
   return np.array(l).reshape(rows, rows) # Use the list l to create a matrix and then reshape it
 
-def neighbours(user, data):
+def neighbours(user, data, method):
   # Create the similarity matrix
-  user_data_sim = generate_sim_matrix(data)[user]
+  user_data_sim = generate_sim_matrix(data, method)[user]
   # Get a list with the index and value
   l = [
     (idx, value)
@@ -61,9 +61,9 @@ def neighbours(user, data):
   )
   return list(res)
 
-def neighbours_sorted(user, data):
+def neighbours_sorted(user, data, method):
   res = sorted(
-    neighbours(user, data),
+    neighbours(user, data, method),
     # Data format is (index, value) so this makes sure
     # that it sorts based on the value
     key = lambda i: i[1], 
@@ -71,43 +71,43 @@ def neighbours_sorted(user, data):
   )
   return list(res)
 
-def KNN(user, data, k):
+def KNN(user, data, k, method):
   # Returns the first k elements
-  return neighbours_sorted(user, data)[:k]
+  return neighbours_sorted(user, data, method)[:k]
 
-def prediction_average(user, movie, k, known_data):
-  k_nearest_neighbours = KNN(user, known_data, k)
+def prediction_average(user, movie, k, known_data, method):
+  k_nearest_neighbours = KNN(user, known_data, k, method)
   res = [
     known_data[id_value[0]][movie]
     for id_value in k_nearest_neighbours
   ]
   return sum(res)/k
 
-def w(user1, user2, data, k):
-  s_u1_u2 = pearson(user1, user2, data)
+def w(user1, user2, data, k, method):
+  s_u1_u2 = method(user1, user2, data)
   sum_over_knn = sum(
     [
       id_value[1]
-      for id_value in KNN(user1, data, k)
+      for id_value in KNN(user1, data, k, method)
     ]
   )
   return s_u1_u2/sum_over_knn
 
-def prediction_weighted_average(user, movie, k, known_data):
-  knn = KNN(user, known_data, k)
+def prediction_weighted_average(user, movie, k, known_data, method):
+  knn = KNN(user, known_data, k, method)
   res = sum(
     [
-      (w(user, id_value[0], known_data, k) * known_data[id_value[0], movie])
+      (w(user, id_value[0], known_data, k, method) * known_data[id_value[0], movie])
       for id_value in knn
     ]
   )
   return res
 
-def prediction_weighted_average_corrected(user, movie, k, known_data):
-  knn = KNN(user, known_data, k)
+def prediction_weighted_average_corrected(user, movie, k, known_data, method):
+  knn = KNN(user, known_data, k, method)
   res = average(user, known_data) + sum(
     [
-      (w(user, id_value[0], known_data, k) * (known_data[id_value[0], movie] - average(id_value[0], known_data)))
+      (w(user, id_value[0], known_data, k, method) * (known_data[id_value[0], movie] - average(id_value[0], known_data)))
       for id_value in knn
     ]
   )
@@ -143,15 +143,16 @@ def get_movie_data(file):
 
 if __name__ == '__main__':
   data = movie_data
+  method = euclidean
   print("Raw data (rows: users, columns: movies): \n" + str(data))
-  print("Similarity matrix - all data (rows and columns: users): \n" + str(generate_sim_matrix(data)))
+  print("Similarity matrix - all data (rows and columns: users): \n" + str(generate_sim_matrix(data, method)))
   print("\n")
 
   k = 3 # How many neighbours
   print("Users and its neighbours sorted with k=" + str(k) + str(" (also all data)"))
   (rows, columns) = np.shape(data)
   for user in range(rows):
-    print("  User " + str(user) + ": " + str(KNN(user, data, k)))
+    print("  User " + str(user) + ": " + str(KNN(user, data, k, method)))
   print("\n")
 
   # User and their removed movie
@@ -172,19 +173,22 @@ if __name__ == '__main__':
       user, 
       movie, 
       k, 
-      training_data
+      training_data,
+      method
     )
     predicted_rating_weighted_average = prediction_weighted_average(
       user, 
       movie, 
       k, 
-      training_data
+      training_data,
+      method
     )
     predicted_rating_weighted_average_corrected = prediction_weighted_average_corrected(
       user, 
       movie, 
       k, 
-      training_data
+      training_data,
+      method
     )
     print("  User: " + str(user) + ", movie: " + str(movie))
     print("    Actual rating: " + str(actual_rating))
