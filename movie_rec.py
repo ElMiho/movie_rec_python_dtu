@@ -31,6 +31,12 @@ def pearson(user1, user2, data):
   )
   return sum1/(sum2 * sum3)
 
+def euclidean(user1, user2, data):
+  sum = np.sum(
+    (data[user1] - data[user2])**2
+  )
+  return 1/(1 + np.sqrt(sum))
+
 def generate_sim_matrix(data):
   (rows, columns) = np.shape(data)
   l = [
