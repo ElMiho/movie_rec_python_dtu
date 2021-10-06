@@ -61,7 +61,7 @@ def neighbours_sorted(user, data):
     # Data format is (index, value) so this makes sure
     # that it sorts based on the value
     key = lambda i: i[1], 
-    reverse = True # Clostest neighbours first
+    reverse = True # Closest neighbours first
   )
   return list(res)
 
